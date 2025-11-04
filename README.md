@@ -3,7 +3,7 @@
 A query library supporting the OCEAN (Object-Centric Event AggregatioN) language for specifying and executing EKG aggregation queries.  
 
 > [!NOTE]
-> Evaluation results are available in the project [Wiki](https://github.com/SaraPettinari/ekg_aggregation_lib/wiki)
+> Evaluation results are available in the project [Wiki](https://github.com/SaraPettinari/ocean-lib/wiki)
 
 
 ## 🛠️ Setup  
