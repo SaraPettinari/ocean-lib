@@ -1,5 +1,6 @@
 type_tag: "Type"    # how the Type of an entity, df, class, etc. is called
 
+entity_type_mode: 'property'
 
 # Neo4j configuration
 neo4j:

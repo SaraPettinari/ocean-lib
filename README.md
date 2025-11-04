@@ -1,6 +1,6 @@
-# Aggregation Query Library  
+# OCEAN Library  
 
-A query library for specifying and executing EKG aggregation queries.  
+A query library supporting the OCEAN (Object-Centric Event AggregatioN) language for specifying and executing EKG aggregation queries.  
 
 > [!NOTE]
 > Evaluation results are available in the project [Wiki](https://github.com/SaraPettinari/ekg_aggregation_lib/wiki)
@@ -11,13 +11,13 @@ A query library for specifying and executing EKG aggregation queries.
 Clone the repo:
 
 ```bash
-git clone https://github.com/SaraPettinari/ekg_aggregation_lib.git
+git clone https://github.com/SaraPettinari/ocean-lib.git
 ```
 
 Navigate inside the repo:
 
 ```bash
-cd <YOUR_PATH>/ekg_aggregation_lib
+cd <YOUR_PATH>/ocean_lib
 ```
 
 Create a virtual environment and activate it:  
@@ -71,6 +71,7 @@ event_timestamp: "<EVENT_TIME_REF>"    # timestamp attribute name of the event
 
 entity_id: "<ENTITY_ID_REF>"   # unique identifier attribute for the entity
 
+### OPTIONAL! Not needed if the dataset is already in Neo4j ### 
 events:
   path: "<YOUR_PATH_TO_EVENTS_CSV>"    # path to the event table
   attr: ["<EVENT_ATTRS>"]   # attributes to retrieve from the event table
@@ -104,6 +105,9 @@ entities:
 ```yaml
 type_tag: "<TYPE_REF>"    # how the Type of an entity, df, class, etc. is called
 
+entity_type_mode: '<label/property>'  # specify if the entity type is represented as a label or as a property in the graph database  
+# label = :Entity:EntityType
+# property = :Entity (Type: 'EntityType')
 
 # Neo4j configuration
 neo4j:

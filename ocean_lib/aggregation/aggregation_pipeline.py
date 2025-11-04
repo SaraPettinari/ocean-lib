@@ -1,6 +1,7 @@
-import os
+import os, inspect
 import time, datetime
 import pandas as pd
+from functools import wraps
 from ..configurator import config
 from ..configurator.knowledge import knowledge
 from ..aggregation.init_ekg import InitEkg
@@ -9,6 +10,13 @@ from ..aggregation.grammar import *
 
 
 def run_pipeline(config_dir: str, out_dir: str, aggr_spec_fn, first_load: bool = False):
+    '''
+    Runs an aggregation pipeline. \n
+    :param config_dir: directory containing .yaml configuration files.
+    :param out_dir: directory to save output files for validation purposes.
+    :param aggr_spec_fn: function that takes log and ekg configurations as input and returns an AggrSpecification object.
+    :param first_load: if _True_, initializes the EKG before aggregation, _False_ by default.
+    '''
     # Load config from the specified directory
     config.load_configs(config_dir)
     knowledge.log = config.get_log_config()
@@ -47,3 +55,28 @@ def run_pipeline(config_dir: str, out_dir: str, aggr_spec_fn, first_load: bool =
 
     aggr_spec = aggr_spec_fn(log, ekg)
     aggregate_ekg(aggr_spec)
+
+
+
+def pipeline(first_load=False, out_dir='validation'):
+    '''
+    Decorator to define and run an aggregation pipeline. \n
+    :param first_load: if _True_, initializes the EKG before aggregation, _False_ by default.
+    :param out_dir: directory to save output files, 'validation' by default.
+    '''
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        module = inspect.getmodule(func)
+        if module and module.__name__ == "__main__":
+            this_dir = os.path.dirname(os.path.abspath(inspect.getsourcefile(func)))
+            run_pipeline(
+                config_dir=this_dir,
+                out_dir=os.path.join(this_dir, out_dir),
+                aggr_spec_fn=func,
+                first_load=first_load,
+            )
+        return wrapper
+    return decorator

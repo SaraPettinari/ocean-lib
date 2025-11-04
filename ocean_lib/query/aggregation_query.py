@@ -1,6 +1,7 @@
 from ..aggregation.grammar import *
 from ..configurator.knowledge import knowledge
 
+
 def EKG():
     return knowledge.ekg
 
@@ -9,8 +10,11 @@ def LOG():
 
 
 def translate_aggr_function(attr: str, func: AggregationFunction):
-    ''' Translate aggregation functions to Neo4j Cypher syntax 
-    (Note that some attributes types are not compatible with aggregation functions. E.g., _sum_ or _avg_ does not work with timestamps) '''
+    ''' Translate aggregation functions to Neo4j Cypher syntax \n
+    (Note that some attributes types are not compatible with aggregation functions. E.g., _sum_ or _avg_ does not work with timestamps) \n
+    :param attr: attribute name
+    :param func: aggregation function (supported: SUM, AVG, MIN, MAX, MINMAX, MULTISET)    
+    '''
     if func == AggregationFunction.SUM:
         return f"sum(n.{attr})"
     elif func == AggregationFunction.AVG:
@@ -26,13 +30,13 @@ def translate_aggr_function(attr: str, func: AggregationFunction):
                 UNWIND attrList AS att
                 WITH c, att, COUNT(att) AS attrCount
                 WITH c, COLLECT(att + ':' + attrCount) """
-    else:
-        raise ValueError(f"Unsupported function: {func}")
+    else: raise ValueError(f"Unsupported function: {func}")
 
 
 def generate_cypher_from_step_q(step: AggrStep) -> str:
     '''
-    Convert an aggregation step to a Cypher query
+    Convert an aggregation step to a Cypher query \n
+    :param step: aggregation step
     '''
     node_type = "Event" if step.aggr_type == "EVENTS" else "Entity"
     
@@ -56,7 +60,10 @@ def generate_cypher_from_step_q(step: AggrStep) -> str:
 
 def aggregate_nodes(node_type: str, group_by: List[str], where: str) -> str:
     '''
-    Cypher query construction for _nodes_ aggregation
+    Cypher query construction for _nodes_ aggregation \n -> AGGREGATE < node_type > BY < group_by > WHERE < where > \n
+    :param node_type: type of node to aggregate ("Event" or "Entity")
+    :param group_by: list of attributes to group by 
+    :param where: filtering condition 
     '''
     if node_type not in ["Event", "Entity"]:    
         raise ValueError(f"Unsupported node type: {node_type}. Supported types are 'Event' and 'Entity'.")
@@ -138,7 +145,12 @@ def aggregate_nodes(node_type: str, group_by: List[str], where: str) -> str:
 
     return cypher_query
 
+
 def aggregate_events_with_entities_q(group_by: List[str], where: str):
+    '''
+    Create a Cypher query to aggregate events considering if the entities they are correlated to have already been aggregated \n
+    :param group_by: list of attributes to group by
+    '''
     entities = []
     for attr in group_by:
         if attr in LOG().entities:
@@ -167,9 +179,14 @@ def aggregate_events_with_entities_q(group_by: List[str], where: str):
 
 
 def aggregate_attributes(aggr_type, attribute, agg_func):
-    '''Aggregate attributes of nodes'''
+    '''
+    Aggregate attributes of nodes \n
+    :param aggr_type: type of aggregation ("EVENTS" or "ENTITIES")
+    :param attribute: attribute to aggregate
+    :param agg_func: aggregation function (supported: SUM, AVG, MIN, MAX, MINMAX, MULTISET)    
+    '''
     node_type = "Event" if aggr_type == "EVENTS" else "Entity"
-    t_function = translate_aggr_function(attribute, agg_func)
+    t_function = translate_aggr_function(attribute, agg_func) # translate the aggregation function to Cypher syntax
     
     return (f'''
             MATCH (n:{node_type})-[:OBS]->(c:Class)
@@ -178,6 +195,10 @@ def aggregate_attributes(aggr_type, attribute, agg_func):
             ''')
 
 def finalize_c_q(node_type: str):
+    '''
+    Implement the finalization step by creating Class nodes for non-aggregated nodes \n
+    :param node_type: type of node to finalize ("Event" or "Entity")
+    '''
     if node_type == "Event":
         return(f'''
                 MATCH (n:Event)
@@ -204,6 +225,7 @@ def finalize_c_q(node_type: str):
         
         
 def generate_df_c_q():
+    ''' Generate the Cypher query to create DF_C relationships between Class nodes based on DF relationships between Event nodes '''
     where_with_clause = f'''
         WHERE c1.Agg = c2.Agg AND n.{EKG().type_tag} = df.{EKG().type_tag}
         WITH n.{EKG().type_tag} as EType,c1,count(df) AS df_freq,c2
@@ -221,7 +243,9 @@ def generate_df_c_q():
         ON CREATE SET rel2.count=df_freq
         ''')
 
+
 def generate_corr_c_q():
+    ''' Generate the Cypher query to create CORR_C relationships between Class nodes based on CORR relationships between Event and Entity nodes '''
     return (f'''
         MATCH ( ce : Class ) <-[:OBS]- ( e : Event ) -[corr:CORR]-> ( t : Entity ) -[:OBS]-> ( ct : Class )
         MERGE ( ce ) -[rel2:CORR_C]-> ( ct ) 
@@ -229,6 +253,7 @@ def generate_corr_c_q():
     
 
 def count_not_aggregated_nodes_q(node_type : str):
+    ''' Count the number of not aggregated nodes of the EKG '''
     return (f'''
         MATCH (n:{node_type})
         WHERE NOT EXISTS((n)-[:OBS]->())

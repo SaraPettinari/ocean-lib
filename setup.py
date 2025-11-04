@@ -4,7 +4,7 @@ with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
 setup(
-    name='ekg_aggregation_lib',  
+    name='ocean_lib',  
     version='0.1.0',  
     author='Sara Pettinari',  
     author_email='sara.pettinari@gssi.it',  

@@ -1,18 +1,12 @@
-import os
-from ekg_aggregation_lib import run_pipeline, AggrSpecification, AggrStep
+from ocean_lib import pipeline, AggrSpecification, AggrStep
 
+
+@pipeline(first_load=False)
 def build_aggr_spec(log, ekg):
-    aggr_basic0 = [
+    aggr_basic = [
+        AggrStep(aggr_type="ENTITIES", ent_type="Invoice", group_by=[ekg.type_tag], where='value >= 5000', attr_aggrs=[]),
+        AggrStep(aggr_type="ENTITIES", ent_type="Invoice", group_by=[ekg.type_tag], where='value < 5000', attr_aggrs=[]),
         AggrStep(aggr_type="EVENTS", ent_type= None, group_by=[log.event_activity], where=None, attr_aggrs=[])]
     
-    return AggrSpecification(aggr_basic0)
+    return AggrSpecification(aggr_basic)
 
-if __name__ == "__main__":
-
-    this_dir = os.path.dirname(os.path.abspath(__file__))
-    run_pipeline(
-        config_dir=os.path.join(this_dir),
-        out_dir=os.path.join(this_dir, 'validation'),
-        aggr_spec_fn=build_aggr_spec,
-        first_load=False # True, if it's the first time running the pipeline (to load the data from the source files
-    )
