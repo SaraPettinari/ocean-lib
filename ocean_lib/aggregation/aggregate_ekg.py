@@ -3,9 +3,10 @@ from ..aggregation.grammar import *
 from neo4j import GraphDatabase
 from ..aggregation.collect_info_decorator import collect_metrics
 from ..configurator.knowledge import knowledge
+from ..configurator.handle_config import HandleConfig
 
 class AggregateEkg:
-    def __init__(self):
+    def __init__(self, first_load: bool = False):
         self.log = knowledge.log
         self.ekg = knowledge.ekg
         self.neo4j = self.ekg.neo4j
@@ -15,10 +16,14 @@ class AggregateEkg:
         self.driver.verify_connectivity()
         self.session = self.driver.session(database="neo4j")
         
+        handler = HandleConfig(self.session)
+
         if self.ekg.entity_type_mode == "label":
-            from ..configurator.handle_config import HandleConfig
-            handler = HandleConfig(self.session)
             handler.load_entities_in_log_config()
+            handler.align_entity_type_property()
+            
+        if not first_load: # create indexes only if not first load
+            handler.load_indexes()
             
         # store performances
         self.benchmark = {}
@@ -30,7 +35,13 @@ class AggregateEkg:
         print(f"Executing node aggregation query for {step}...")
 
         cypher_query = q_lib.generate_cypher_from_step_q(step)
-        self.session.run(cypher_query)
+        
+        #print("Generated Cypher Query:\n", cypher_query)
+                
+        self.session.run(cypher_query).consume()
+        
+        print("Finished node aggregation step.")
+        
         # aggregate the attributes if any
         if step.attr_aggrs:
                 for attr_aggr in step.attr_aggrs:
@@ -67,12 +78,18 @@ class AggregateEkg:
             self.one_step_agg(step)
         self.finalize() # finalize the aggregation
         
+        # add the counter to the Class nodes
+        counter_query = q_lib.add_counter_to_class_nodes_q()
+        self.session.run(counter_query)
+        
         print("Node aggregation query executed successfully.")
 
     @collect_metrics('RELATIONSHIPS')
     def infer_rels(self):
         print("Inferring relationships ...")
         query = q_lib.generate_df_c_q()
+        
+        #print("Generated DF Query:\n", query)
         self.session.run(query)
         
         query = q_lib.generate_corr_c_q()

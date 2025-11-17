@@ -30,6 +30,15 @@ class AggrStep:
     group_by: List[str]
     where: Optional[str]  # Boolean expression as string
     attr_aggrs: List[AttrAggr]
+    
+    
+    def __post_init__(self):
+        ''' Validate aggr_type '''
+        allowed = {"EVENTS", "ENTITIES"}
+        if self.aggr_type not in allowed:
+            raise ValueError(
+                f"Invalid aggr_type '{self.aggr_type}'. Must be one of {allowed}."
+            )
 
 @dataclass
 class AggrSpecification:

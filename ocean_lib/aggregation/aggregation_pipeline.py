@@ -38,7 +38,7 @@ def run_pipeline(config_dir: str, out_dir: str, aggr_spec_fn, first_load: bool =
 
     def aggregate_ekg(aggr_spec: AggrSpecification):
         curr_datetime = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        aggregator = AggregateEkg()
+        aggregator = AggregateEkg(first_load)
         aggregator.aggregate(aggr_spec)
         aggregator.infer_rels()
 
