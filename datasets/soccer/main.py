@@ -33,5 +33,5 @@ def build_aggr_spec(log, ekg):
         AggrStep(aggr_type="ENTITIES", ent_type= "playerId", group_by=["role"], where=None, attr_aggrs=[]),
         AggrStep(aggr_type="EVENTS", ent_type= None, group_by=[log.event_activity, "teamId","playerId"], where='matchId = "2575959"', attr_aggrs=[AttrAggr(name=log.event_timestamp, function=AggregationFunction.MINMAX)])]
     
-    return AggrSpecification(aggr_basic0)
+    return AggrSpecification(aggr_running)
 
