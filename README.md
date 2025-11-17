@@ -144,4 +144,4 @@ query_library/
 
 * _OCEL2.0 Datasets_: downloaded from [ocelot](https://ocelot.pm/), based on the [ocel-standard](https://www.ocel-standard.org/event-logs/overview/) ➡️ `logistics`, `order management`, `procure-to-pay (p2p)`.
 
-* _Soccer Matches Dataset_: available on [github](https://github.com/SaraPettinari/soccer_data_pm).
+* _Soccer Matches Dataset_: available on [github](https://github.com/SaraPettinari/soccer-data-oced).
