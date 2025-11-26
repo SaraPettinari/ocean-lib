@@ -1,7 +1,8 @@
 import os
 import yaml
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional,Literal
+from .const import Constants as cn
 
 @dataclass
 class NodeConfig:
@@ -29,9 +30,14 @@ class Neo4jConfig:
 @dataclass
 class EKGReferences:
     type_tag: str
-    entity_type_mode : str | None
+    entity_type_mode : Literal[cn.LABEL, cn.PROPERTY] | None
     neo4j: Neo4jConfig
     
+    def __post_init__(self):
+        if self.entity_type_mode not in (cn.LABEL, cn.PROPERTY, None):
+            raise ValueError(
+                f"Invalid entity_type_mode: {self.entity_type_mode!r}. Must be 'label', 'property', or None."
+            )
     
 # Load YAML files
 LOG_REFERENCES = None

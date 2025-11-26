@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List, Optional
 from enum import Enum
+from ..configurator.const import Constants as cn
+
 
 class AggregationFunction(Enum):
     SUM = "SUM"
@@ -34,7 +36,7 @@ class AggrStep:
     
     def __post_init__(self):
         ''' Validate aggr_type '''
-        allowed = {"EVENTS", "ENTITIES"}
+        allowed = {cn.EVENTS, cn.ENTITIES}
         if self.aggr_type not in allowed:
             raise ValueError(
                 f"Invalid aggr_type '{self.aggr_type}'. Must be one of {allowed}."

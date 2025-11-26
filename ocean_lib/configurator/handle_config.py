@@ -58,14 +58,7 @@ class HandleConfig:
 
             #print(f"Dropping index: {name}")
             self.session.run(q_lib.drop_index_q(name))
-        
-        # res = self.session.run(q_lib.get_indexes_q()) 
-        # indexes = res.data()
-        
-        # for index in indexes:
-        #     index_name = index['name']
-        #     self.session.run(q_lib.drop_index_q(index_name))
-        
+                
         # create new indexes
         self.session.run(q_lib.create_index_q('Entity', self.log.entity_id))
         self.session.run(q_lib.create_index_q('Entity', self.ekg.type_tag))

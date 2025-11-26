@@ -3,6 +3,7 @@ from ..aggregation.grammar import *
 from neo4j import GraphDatabase
 from ..aggregation.collect_info_decorator import collect_metrics
 from ..configurator.knowledge import knowledge
+from ..configurator.const import Constants as cn
 from ..configurator.handle_config import HandleConfig
 
 class AggregateEkg:
@@ -18,7 +19,8 @@ class AggregateEkg:
         
         handler = HandleConfig(self.session)
 
-        if self.ekg.entity_type_mode == "label":
+        if self.ekg.entity_type_mode == cn.LABEL:
+            # if entity types are stored as labels, align them
             handler.load_entities_in_log_config()
             handler.align_entity_type_property()
             
@@ -54,10 +56,10 @@ class AggregateEkg:
         ''' Finalize the aggregation by creating the Class nodes for non-aggregated nodes '''
         print("Finalizing Class nodes ...")
         
-        event_singleton_query = q_lib.finalize_c_q(node_type="Event")
+        event_singleton_query = q_lib.finalize_c_q(node_type=cn.EVENT_NODE)
         self.session.run(event_singleton_query)
                 
-        entity_singleton_query = q_lib.finalize_c_q(node_type="Entity")
+        entity_singleton_query = q_lib.finalize_c_q(node_type=cn.ENTITY_NODE)
         self.session.run(entity_singleton_query)
         
         print("Node finalization aggregation query executed successfully.")
@@ -73,7 +75,6 @@ class AggregateEkg:
     @collect_metrics('TOTAL')
     def aggregate(self, aggr_spec: AggrSpecification):
         ''' Execute the aggregation for the given specification '''
-   
         for step in aggr_spec.steps:
             self.one_step_agg(step)
         self.finalize() # finalize the aggregation
@@ -97,12 +98,15 @@ class AggregateEkg:
         
         print("Relationships inferred successfully.")
                     
+                    
     def verify_no_aggregated_nodes(self):
         ''' Verify the not aggregated nodes of the EKG '''
-        cypher_query = q_lib.count_not_aggregated_nodes_q('Event')
+        cypher_query = q_lib.count_not_aggregated_nodes_q(cn.EVENT_NODE)
         no_aggr_nodes_events = self.session.run(cypher_query).single()[0]
-        cypher_query = q_lib.count_not_aggregated_nodes_q('Entity')
+        
+        cypher_query = q_lib.count_not_aggregated_nodes_q(cn.ENTITY_NODE)
         no_aggr_nodes_entities = self.session.run(cypher_query).single()[0]
+        
         return no_aggr_nodes_events, no_aggr_nodes_entities
         
 
