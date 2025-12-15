@@ -9,6 +9,11 @@ def EKG():
 def LOG():
     return knowledge.log
 
+def ENTITIES():
+    ''' Set of entity types being aggregated '''
+    return knowledge.entities
+
+
 
 def translate_aggr_function(attr: str, func: AggregationFunction):
     ''' Translate aggregation functions to Neo4j Cypher syntax \n
@@ -70,9 +75,9 @@ def aggregate_nodes(node_type: str, group_by: List[str], where: str) -> str:
     aggr_expressions = []
     
     if node_type == cn.EVENT_NODE:
-        get_query = aggregate_events_with_entities_q(group_by, where) # create a query to aggregate events also considering if entities have already been aggregated
+        get_query = aggregate_events_with_entities_q(group_by) # create a query to aggregate events also considering if entities have already been aggregated
         merge_clause = (
-            f'MERGE (c:Class {{ Name: val, Origin: "{node_type}", ID: val, Agg: "{agg_type}"'
+            f'MERGE (c:Class {{ Name: rawEventName, FullName: val, Origin: "{node_type}", ID: randomUUID(), Agg: "{agg_type}"' #randomUUID()
             + f", Where: '{where if where else ''}'"
             + " })"
         )
@@ -97,7 +102,7 @@ def aggregate_nodes(node_type: str, group_by: List[str], where: str) -> str:
         
         merge_clause = (
             f'MERGE (c:Class {{ Name: val, {EKG().type_tag}: {EKG().type_tag}, '
-            + f'Origin: "{node_type}", ID: val, Agg: "{agg_type}", '
+            + f'Origin: "{node_type}", ID: randomUUID(), Agg: "{agg_type}", ' #randomUUID()
             + f"Where: '{where if where else ''}'}})"
         )
 
@@ -127,42 +132,43 @@ def aggregate_nodes(node_type: str, group_by: List[str], where: str) -> str:
     return cypher_query
 
 
-
-def aggregate_events_with_entities_q(group_by: List[str], where: str):
+def aggregate_events_with_entities_q(group_by: List[str]):
     '''
-    Create a Cypher query to aggregate events considering if the entities they are correlated to have already been aggregated \n
+    Aggregate Event nodes considering also already aggregated Entity nodes \n
     :param group_by: list of attributes to group by
     '''
-    entities = []
+    bounded_entities = ENTITIES().copy()
     parameters = []
     for attr in group_by:
         if attr in LOG().entities:
-            entities.append(attr)
+            bounded_entities.add(attr)
         elif attr != LOG().event_activity:
-            parameters.append(attr) 
+            parameters.append(attr)
     
     match = ""
     variables = 'WITH n'
     coalesce_clause = f", COALESCE(n.{LOG().event_activity}, 'unknown') AS rawEventName"
+    
     var_tags = ['rawEventName']
-    for index,entity in enumerate(entities):
-        match += f"\nOPTIONAL MATCH (n)-[:CORR]->(e{index}:Entity {{{EKG().type_tag}: '{entity}'}})-[:OBS]->(c{index}:Class)" 
+    
+    for index,entity in enumerate(bounded_entities):
+        match += f"\nOPTIONAL MATCH (n)-[:CORR]->(:Entity {{{EKG().type_tag}: '{entity}'}})-[:OBS]->(c{index}:Class)"
         variables += f', c{index}'
-        coalesce_clause += f', COALESCE(c{index}.ID, n.{entity}, "unknown") AS resolved{entity}'
+        coalesce_clause += f', COALESCE(c{index}.Name, "unknown") AS resolved{entity}'
         var_tags.append(f'resolved{entity}')
+        
     for param in parameters:
         coalesce_clause += f', COALESCE(n.{param}, "unknown") AS {param}'
         var_tags.append(f'{param}')
         
-    init_query = '\n'.join([match,variables,coalesce_clause])
+    init_query = '\n'.join([match, variables, coalesce_clause])
     
     coalesced_parts = [f'{col}' for col in var_tags]
     coalesced_expression = ' + "_" + '.join(coalesced_parts)
-    with_clause = f'WITH {coalesced_expression} AS val, COLLECT(n) AS nodes'
+    with_clause = f'WITH rawEventName, {coalesced_expression} AS val, COLLECT(n) AS nodes'
     
     return '\n'.join([init_query, with_clause])
     
-
 
 def aggregate_attributes(aggr_type, attribute, agg_func):
     '''
@@ -212,13 +218,12 @@ def generate_df_c_q():
     ''' Generate the Cypher query to create DF_C relationships between Class nodes based on DF relationships between Event nodes '''
     return (f'''
         MATCH ( c1 : Class ) <-[:OBS]- ( e1 : Event ) -[df]-> ( e2 : Event ) -[:OBS]-> ( c2 : Class )
-        MATCH (e1) -[:CORR] -> (n) <-[:CORR]- (e2)
-        WHERE c1.Agg = c2.Agg AND n.{EKG().type_tag} = df.{EKG().type_tag}
-        WITH n.{EKG().type_tag} as EType,c1,count(df) AS df_freq,c2
+        WHERE type(df) CONTAINS 'DF'
+        WITH df.{EKG().type_tag} as EType, c1, COUNT(df) AS df_freq, c2
         MERGE ( c1 ) -[rel2:DF_C {{{EKG().type_tag}:EType}}]-> ( c2 ) 
         ON CREATE SET rel2.count=df_freq
         ''')
-
+    
 
 def generate_corr_c_q():
     ''' Generate the Cypher query to create CORR_C relationships between Class nodes based on CORR relationships between Event and Entity nodes '''

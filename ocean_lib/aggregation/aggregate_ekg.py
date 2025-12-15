@@ -34,12 +34,16 @@ class AggregateEkg:
     @collect_metrics(lambda _, step: str(step))    
     def one_step_agg(self,step: AggrStep):
         ''' Execute a single aggregation step '''
+        
+        if step.aggr_type == cn.ENTITIES: # store the entity types being aggregated
+            knowledge.entities.add(step.ent_type)
+            
         print(f"Executing node aggregation query for {step}...")
 
         cypher_query = q_lib.generate_cypher_from_step_q(step)
         
-        #print("Generated Cypher Query:\n", cypher_query)
-                
+        print("Cypher Query:", cypher_query)
+                        
         self.session.run(cypher_query).consume()
         
         print("Finished node aggregation step.")
@@ -90,7 +94,6 @@ class AggregateEkg:
         print("Inferring relationships ...")
         query = q_lib.generate_df_c_q()
         
-        #print("Generated DF Query:\n", query)
         self.session.run(query)
         
         query = q_lib.generate_corr_c_q()
