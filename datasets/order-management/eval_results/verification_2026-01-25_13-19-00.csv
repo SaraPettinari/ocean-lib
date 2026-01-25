@@ -1,0 +1,8 @@
+step,initial_events,final_events,initial_entities,final_entities
+"AggrStep(aggr_type='ENTITIES', ent_type='customers', group_by=['id'], where=None, attr_aggrs=[])",21008,21008,10840,10825
+"AggrStep(aggr_type='ENTITIES', ent_type='orders', group_by=['Type'], where='price >= 1000', attr_aggrs=[AttrAggr(name='price', function=<AggregationFunction.AVG: 'AVG'>)])",21008,21008,10825,9363
+"AggrStep(aggr_type='ENTITIES', ent_type='orders', group_by=['Type'], where='price < 1000', attr_aggrs=[AttrAggr(name='price', function=<AggregationFunction.AVG: 'AVG'>)])",21008,21008,9363,8825
+"AggrStep(aggr_type='EVENTS', ent_type=None, group_by=['type'], where=None, attr_aggrs=[])",21008,0,8825,8825
+FINALIZATION,0,0,8825,0
+TOTAL,21008,0,10840,0
+RELATIONSHIPS,0,0,0,0

@@ -1,0 +1,7 @@
+step,initial_events,final_events,initial_entities,final_entities
+"AggrStep(aggr_type='ENTITIES', ent_type='playerId', group_by=['role'], where=None, attr_aggrs=[])",1613,1613,37,9
+"AggrStep(aggr_type='ENTITIES', ent_type='teamId', group_by=['wyId'], where=None, attr_aggrs=[])",1613,1613,9,7
+"AggrStep(aggr_type='EVENTS', ent_type=None, group_by=['eventName'], where=None, attr_aggrs=[AttrAggr(name='eventDatetime', function=<AggregationFunction.MINMAX: 'MINMAX'>), AttrAggr(name='matchId', function=<AggregationFunction.MULTISET: 'MULTISET'>)])",1613,0,7,7
+FINALIZATION,0,0,7,0
+TOTAL,1613,0,37,0
+RELATIONSHIPS,0,0,0,0

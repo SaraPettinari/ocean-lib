@@ -1,0 +1,7 @@
+step,Time (s)
+"AggrStep(aggr_type='ENTITIES', ent_type='playerId', group_by=['role'], where=None, attr_aggrs=[])",0.04497408866882324
+"AggrStep(aggr_type='ENTITIES', ent_type='teamId', group_by=['wyId'], where=None, attr_aggrs=[])",0.03487396240234375
+"AggrStep(aggr_type='EVENTS', ent_type=None, group_by=['eventName'], where=None, attr_aggrs=[AttrAggr(name='eventDatetime', function=<AggregationFunction.MINMAX: 'MINMAX'>), AttrAggr(name='matchId', function=<AggregationFunction.MULTISET: 'MULTISET'>)])",0.3004171848297119
+FINALIZATION,0.13374900817871094
+TOTAL,1.4497249126434326
+RELATIONSHIPS,0.18197894096374512

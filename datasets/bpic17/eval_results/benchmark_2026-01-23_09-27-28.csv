@@ -1,0 +1,9 @@
+step,Time (s)
+"AggrStep(aggr_type='ENTITIES', ent_type='Application', group_by=['Type'], where=None, attr_aggrs=[])",0.5518059730529785
+"AggrStep(aggr_type='ENTITIES', ent_type='Offer', group_by=['Type'], where=None, attr_aggrs=[])",0.2971789836883545
+"AggrStep(aggr_type='ENTITIES', ent_type='Workflow', group_by=['Type'], where=None, attr_aggrs=[])",0.20986008644104004
+"AggrStep(aggr_type='ENTITIES', ent_type='Resource', group_by=['Type'], where=None, attr_aggrs=[])",0.01011037826538086
+"AggrStep(aggr_type='EVENTS', ent_type=None, group_by=['activity', 'lifecycle'], where=None, attr_aggrs=[])",16.807284116744995
+FINALIZATION,1.549867868423462
+TOTAL,28.594761848449707
+RELATIONSHIPS,13.11544680595398
