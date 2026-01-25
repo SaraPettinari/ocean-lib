@@ -76,11 +76,12 @@ def aggregate_nodes(node_type: str, group_by: List[str], where: str) -> str:
     
     if node_type == cn.EVENT_NODE:
         get_query = aggregate_events_with_entities_q(group_by) # create a query to aggregate events also considering if entities have already been aggregated
-        merge_clause = (
-            f'MERGE (c:Class {{ Name: rawEventName, FullName: val, Origin: "{node_type}", ID: randomUUID(), Agg: "{agg_type}"' #randomUUID()
-            + f", Where: '{where if where else ''}'"
-            + " })"
-        )
+        merge_clause = f'''
+        MERGE (c:Class {{ CompositeID: val, Origin: "{node_type}", ID: randomUUID(), Agg: "{agg_type}",
+        Name: rawEventName, Where: '{where if where else ''}', CorrEntName: corrEntName
+        }})
+        '''
+        
         cypher_query_parts = [get_query, merge_clause]
     elif node_type == cn.ENTITY_NODE:
         
@@ -95,7 +96,7 @@ def aggregate_nodes(node_type: str, group_by: List[str], where: str) -> str:
         group_keys_clause += ", COLLECT(n) AS nodes"
 
         # Build a value based on distinct values of the group_by attributes
-        val_expr = ' + "_" + '.join([f'COALESCE({field}, "unknown")' for field in group_by]) # will be used to create a unique value for the node
+        val_expr = ' + "_" + '.join([f'COALESCE({field}, "null")' for field in group_by]) # will be used to create a unique value for the node
         new_val = f"{val_expr} AS val"
         
         with_aggr = f"WITH nodes, {EKG().type_tag}, {new_val}"
@@ -147,25 +148,28 @@ def aggregate_events_with_entities_q(group_by: List[str]):
     
     match = ""
     variables = 'WITH n'
-    coalesce_clause = f", COALESCE(n.{LOG().event_activity}, 'unknown') AS rawEventName"
+    coalesce_clause = f", COALESCE(n.{LOG().event_activity}, 'null') AS rawEventName"
     
     var_tags = ['rawEventName']
+    entTags = []
     
     for index,entity in enumerate(bounded_entities):
         match += f"\nOPTIONAL MATCH (n)-[:CORR]->(:Entity {{{EKG().type_tag}: '{entity}'}})-[:OBS]->(c{index}:Class)"
         variables += f', c{index}'
-        coalesce_clause += f', COALESCE(c{index}.Name, "unknown") AS resolved{entity}'
+        coalesce_clause += f', COALESCE(c{index}.ID, "null") AS resolved{entity}, COALESCE(c{index}.Name, "null") AS entName{entity}'
         var_tags.append(f'resolved{entity}')
+        entTags.append(f'entName{entity}')
         
     for param in parameters:
-        coalesce_clause += f', COALESCE(n.{param}, "unknown") AS {param}'
+        coalesce_clause += f', COALESCE(n.{param}, "null") AS {param}'
         var_tags.append(f'{param}')
         
     init_query = '\n'.join([match, variables, coalesce_clause])
     
     coalesced_parts = [f'{col}' for col in var_tags]
     coalesced_expression = ' + "_" + '.join(coalesced_parts)
-    with_clause = f'WITH rawEventName, {coalesced_expression} AS val, COLLECT(n) AS nodes'
+    coalesced_entity_names = ' + "_" + '.join(entTags)
+    with_clause = f'WITH rawEventName, {coalesced_expression} AS val, {coalesced_entity_names} as corrEntName, COLLECT(n) AS nodes'
     
     return '\n'.join([init_query, with_clause])
     
@@ -201,14 +205,11 @@ def finalize_c_q(node_type: str):
                 MERGE (n)-[:OBS]->(c)
                 ''')
     elif node_type == cn.ENTITY_NODE:
-        create_clause = f'''
-        CREATE (c:Class {{ Name: n.{LOG().entity_id}, {EKG().type_tag}: n.{EKG().type_tag}, Origin: 'Entity', ID: n.{LOG().entity_id}, Agg: "singleton"}})
-        ''' 
         return(f'''
                 MATCH (n:Entity)
                 WHERE  NOT EXISTS((n)-[:OBS]->())
                 WITH n
-                {create_clause}
+                CREATE (c:Class {{ Name: n.{LOG().entity_id}, {EKG().type_tag}: n.{EKG().type_tag}, Origin: 'Entity', ID: n.{LOG().entity_id}, Agg: "singleton"}})
                 WITH n,c
                 MERGE (n)-[:OBS]->(c)
                 ''')
