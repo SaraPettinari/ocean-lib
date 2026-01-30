@@ -1,0 +1,36 @@
+{
+    "title": "ocean-lib",
+    "upload_type": "software",
+    "creators": [
+      {
+        "name": "Pettinari, Sara",
+        "affiliation": "Gran Sasso Science Institute",
+        "orcid": "0000-0002-5548-9806"
+      },
+      {
+        "name": "Tiezzi, Francesco",
+        "affiliation": "University of Florence",
+        "orcid": "0000-0003-4740-7521"
+      },
+      {
+        "name": "Fahland, Dirk",
+        "affiliation": "Eindhoven University of Technology",
+        "orcid": "0000-0002-1993-9363"
+      }
+    ],
+    "description": "# OCEAN Library\n\nA query library supporting the OCEAN (Object-Centric Event AggregatioN) language for specifying and executing EKG aggregation queries.",
+    "keywords": [
+      "ocean-lib",
+      "EKG",
+      "query-library"
+    ],
+    "license": "CC-BY-4.0",
+    "related_identifiers": [
+      {
+        "identifier": "https://github.com/SaraPettinari/ocean-lib/wiki",
+        "scheme": "url",
+        "relation": "is_documented_by"
+      }
+    ]
+  }
+  
