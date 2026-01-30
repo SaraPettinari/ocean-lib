@@ -1,0 +1,7 @@
+step,Time (s)
+"AggrStep(aggr_type='ENTITIES', ent_type='material', group_by=['Storage_Location_EKPO_LGORT'], where=None, attr_aggrs=[AttrAggr(name='Quantity_EKPO_MENGE', function=<AggregationFunction.AVG: 'AVG'>), AttrAggr(name='Net_Price_EKPO_NETPR', function=<AggregationFunction.SUM: 'SUM'>)])",0.2680630683898926
+"AggrStep(aggr_type='ENTITIES', ent_type='purchase_requisition', group_by=['Purchasing_Group_EBAN_EKGRP'], where=None, attr_aggrs=[])",0.05077409744262695
+"AggrStep(aggr_type='EVENTS', ent_type=None, group_by=['type'], where=None, attr_aggrs=[])",0.3547379970550537
+FINALIZATION,0.16942501068115234
+TOTAL,1.663604974746704
+RELATIONSHIPS,0.2850990295410156

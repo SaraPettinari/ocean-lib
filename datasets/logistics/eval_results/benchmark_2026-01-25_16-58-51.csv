@@ -1,0 +1,9 @@
+step,Time (s)
+"AggrStep(aggr_type='ENTITIES', ent_type='Container', group_by=['Status'], where=None, attr_aggrs=[AttrAggr(name='Weight', function=<AggregationFunction.AVG: 'AVG'>), AttrAggr(name='Amount_of_Handling_Units', function=<AggregationFunction.MINMAX: 'MINMAX'>)])",0.12775301933288574
+"AggrStep(aggr_type='ENTITIES', ent_type='Customer_Order', group_by=['Type'], where='Amount_of_Goods >= 1000', attr_aggrs=[AttrAggr(name='Amount_of_Goods', function=<AggregationFunction.MINMAX: 'MINMAX'>)])",0.07109498977661133
+"AggrStep(aggr_type='ENTITIES', ent_type='Customer_Order', group_by=['Type'], where='Amount_of_Goods < 1000', attr_aggrs=[AttrAggr(name='Amount_of_Goods', function=<AggregationFunction.MINMAX: 'MINMAX'>)])",0.061216115951538086
+"AggrStep(aggr_type='EVENTS', ent_type=None, group_by=['type'], where='time <= datetime(""2024-03-31T00:00:00"")', attr_aggrs=[AttrAggr(name='time', function=<AggregationFunction.MINMAX: 'MINMAX'>)])",0.30698704719543457
+"AggrStep(aggr_type='EVENTS', ent_type=None, group_by=['type'], where='time > datetime(""2024-03-31T00:00:00"")', attr_aggrs=[AttrAggr(name='time', function=<AggregationFunction.MINMAX: 'MINMAX'>)])",0.22141695022583008
+FINALIZATION,0.15568304061889648
+TOTAL,1.9319779872894287
+RELATIONSHIPS,0.2493128776550293

@@ -20,7 +20,7 @@ def build_aggr_spec(log, ekg):
                     AggrStep(aggr_type="ENTITIES", ent_type= "teamId", group_by=["wyId"], where=None, attr_aggrs=[]),
                     AggrStep(aggr_type="EVENTS", ent_type= None, where=None, group_by=[log.event_activity], 
                                     attr_aggrs=[AttrAggr(name=log.event_timestamp, function=AggregationFunction.MINMAX),
-                                                AttrAggr(name="matchId", function=AggregationFunction.MULTISET)])]
+                                                AttrAggr(name="pos_orig", function=AggregationFunction.MULTISET)])]
     
     # full dataset example:
     # we want to aggregate by teamId and position 
@@ -33,10 +33,10 @@ def build_aggr_spec(log, ekg):
     aggr_full = [
         AggrStep(aggr_type="ENTITIES", ent_type="teamId", group_by=["wyId"], where=None, attr_aggrs=[]),
         AggrStep(aggr_type="ENTITIES", ent_type="pos_orig", group_by=["wyId"], where=None, attr_aggrs=[]),
-        AggrStep(aggr_type="EVENTS", ent_type=None, group_by=[log.event_activity], where=None, 
+        AggrStep(aggr_type="EVENTS", ent_type=None, group_by=[log.event_activity, "matchId"], where=None, 
                  attr_aggrs=[AttrAggr(name=log.event_timestamp, function=AggregationFunction.MINMAX),
                              AttrAggr(name="playerId", function=AggregationFunction.MULTISET)])
     ]
                 
-    return AggrSpecification(aggr_running)
+    return AggrSpecification(baseline)
 
