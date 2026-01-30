@@ -47,7 +47,20 @@ python main.py
 
 Make sure you configure the required `.yaml` files before running the script, as described in the [Configuration](#-configuration) section.
 
+### Query Specification Pattern
 
+The library is used by defining a list of `AggrStep(...)` and returning an `AggrSpecification(...)` (see examples in the wiki).
+
+Typical skeleton:
+```python
+@pipeline(first_load=<True/False>)
+def build_aggr_spec(log, ekg):
+    steps = [
+        # AggrStep(...),
+        # AggrStep(...),
+    ]
+    return AggrSpecification(steps)
+```
 
 ## 🔧 Configuration
 
@@ -140,8 +153,8 @@ query_library/
 
 ## Datasets
 
-### Object-centric
+* _Soccer Matches Dataset_: available on [github](https://github.com/SaraPettinari/soccer-data-oced).
 
 * _OCEL2.0 Datasets_: downloaded from [ocelot](https://ocelot.pm/), based on the [ocel-standard](https://www.ocel-standard.org/event-logs/overview/) ➡️ `logistics`, `order management`, `procure-to-pay (p2p)`.
 
-* _Soccer Matches Dataset_: available on [github](https://github.com/SaraPettinari/soccer-data-oced).
+* _BPIC 2017 Dataset_: available on [PromG](https://github.com/PromG-dev/ekg_bpic17).
