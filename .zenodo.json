@@ -28,8 +28,9 @@
     "related_identifiers": [
       {
         "identifier": "https://github.com/SaraPettinari/ocean-lib/wiki",
-        "scheme": "url",
-        "relation": "is_documented_by"
+        "relation": "isDocumentedBy",
+        "resource_type": "publication-softwaredocumentation",
+        "scheme": "url"
       }
     ]
   }
