@@ -18,7 +18,7 @@
         "orcid": "0000-0002-1993-9363"
       }
     ],
-    "description": "# OCEAN Library\n\nA query library supporting the OCEAN (Object-Centric Event AggregatioN) language for specifying and executing EKG aggregation queries.",
+    "description": "OCEAN Library\n\nA query library supporting the OCEAN (Object-Centric Event AggregatioN) language for specifying and executing EKG aggregation queries.",
     "keywords": [
       "ocean-lib",
       "EKG",
